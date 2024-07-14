@@ -29,7 +29,7 @@ class AuthService {
 
   async getNewAccessToken() {
     const response = await axiosPublic.post<IAuthResponse>(
-      "/auth/access-token"
+      "/auth/login/access-token"
     );
 
     if (response.data.accessToken) saveAccessToken(response.data.accessToken);
