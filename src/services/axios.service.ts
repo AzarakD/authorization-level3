@@ -43,7 +43,11 @@ axiosPrivate.interceptors.response.use(
 
         return axiosPrivate.request(originalRequest);
       } catch (error) {
-        if (errorCatch(error) === "jwt expired") removeAccessToken();
+        if (
+          errorCatch(error) === "jwt expired" ||
+          errorCatch(error) === "Refresh token not passed"
+        )
+          removeAccessToken();
       }
     }
   }
