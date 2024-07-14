@@ -21,8 +21,7 @@ export const AuthForm: React.FC<AuthFormProps> = ({ isLogin }) => {
   const { mutate: mutateLogin, isPending: isLoginPending } = useMutation({
     mutationKey: ["login"],
     mutationFn: (data: IAuthFormData) => authService.login(data),
-    onSuccess: (data) => {
-      localStorage.setItem("token", data.accessToken);
+    onSuccess: () => {
       reset();
       router.push("/");
     },
@@ -31,8 +30,7 @@ export const AuthForm: React.FC<AuthFormProps> = ({ isLogin }) => {
   const { mutate: mutateRegister, isPending: isRegisterPending } = useMutation({
     mutationKey: ["register"],
     mutationFn: (data: IAuthFormData) => authService.register(data),
-    onSuccess: (data) => {
-      localStorage.setItem("token", data.accessToken);
+    onSuccess: () => {
       reset();
       router.push("/");
     },
