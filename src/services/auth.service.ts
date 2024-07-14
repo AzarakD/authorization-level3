@@ -1,4 +1,5 @@
-import { API_URL } from "@/constants";
+import { axiosPrivate, axiosPublic } from "@/services/axios.service";
+import { removeAccessToken, saveAccessToken } from "@/services/cookie.service";
 import { IAuthFormData, IUser } from "@/types";
 
 interface IAuthResponse {
@@ -7,56 +8,45 @@ interface IAuthResponse {
 }
 
 class AuthService {
-  async login(data: IAuthFormData): Promise<IAuthResponse> {
-    const response = await fetch(`${API_URL}/auth/login`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(data),
-    });
+  async login(data: IAuthFormData) {
+    const response = await axiosPublic.post<IAuthResponse>("/auth/login", data);
 
-    if (!response.ok) {
-      throw new Error("Request error");
-    }
+    if (response.data.accessToken) saveAccessToken(response.data.accessToken);
 
-    const responseData: IAuthResponse = await response.json();
-    return responseData;
+    return response;
   }
 
-  async register(data: IAuthFormData): Promise<IAuthResponse> {
-    const response = await fetch(`${API_URL}/auth/register`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(data),
-    });
+  async register(data: IAuthFormData) {
+    const response = await axiosPublic.post<IAuthResponse>(
+      "/auth/register",
+      data
+    );
 
-    if (!response.ok) {
-      throw new Error("Request error");
-    }
+    if (response.data.accessToken) saveAccessToken(response.data.accessToken);
 
-    const responseData: IAuthResponse = await response.json();
-    return responseData;
+    return response;
   }
 
-  async getProfile(): Promise<IUser> {
-    const token = localStorage.getItem("token");
+  async getNewAccessToken() {
+    const response = await axiosPublic.post<IAuthResponse>(
+      "/auth/access-token"
+    );
 
-    const response = await fetch(`${API_URL}/auth/profile`, {
-      method: "GET",
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
+    if (response.data.accessToken) saveAccessToken(response.data.accessToken);
 
-    if (!response.ok) {
-      throw new Error("Request error");
-    }
+    return response;
+  }
 
-    const responseData: IUser = await response.json();
-    return responseData;
+  async logout() {
+    const response = await axiosPublic.post<boolean>("/auth/logout");
+
+    if (response.data) removeAccessToken();
+
+    return response;
+  }
+
+  async getProfile() {
+    return axiosPrivate.get<IUser>(`/auth/profile`);
   }
 }
 
